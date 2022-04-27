@@ -9,7 +9,7 @@
 using namespace std;
 // ce sont des valeurs fixées arbitrairement mais qui peuvent etre generés via Black and Sholes
 //taux sans risque R
-const double r=0.02;
+/*const double r=0.02;
 //le premier sous jacent généré via s
 const double  S_0=100.00;
 //la volatilitée
@@ -20,18 +20,44 @@ const double strikeK=60.00;
 //nombre de trajectoirs
 const int N=10000;
 //const alpha=0.05;
-// loie normal centrée reduite généré aléatoirement
-double genererNbreLoiNormale(){
+// loie normal centrée reduite généré aléatoirement*/
+class MC{
+private:
+  double r;
+  double S_0;
+  double ecartType;
+  double strikeK;
+  int N;
+  long periodT;
+public:
+MC(double r,double S_0,double ecartType,double strikeK, int N, long periodT);
+double genererNbreLoiNormale();
+list<double> simuler_une_trajectoire(double nbreLoiNormal);
+list<list<double> > simuler_N_trajectoire(double nbreLoiNormal);
+double calculerPayOff(list<double> x,bool isCall);
+list<double>  calculerPayOffs(list<list<double> > lx, bool isCall);
+double calculerMoyennePayOffs(list<list<double> > lx, bool isCall);
+void afficherNTraj(list<list<double> > N_traj);
+double getPrixCall();
+double getPrixPut();
+};
+MC::MC(double r,double S_0,double ecartType,double strikeK, int N , long periodT){
+  this->r=r;
+  this->S_0=S_0;
+  this->ecartType=ecartType;
+  this->strikeK=strikeK;
+  this->N=N;
+  this->periodT=periodT;
+}
+double MC::genererNbreLoiNormale(){
   unsigned seed = chrono::system_clock::now().time_since_epoch().count();
   default_random_engine generator (seed);
   normal_distribution<double> distribution(0.0,1.0);
-  G=distribution(generator);
-  //cout<<"loie normal: "<<G<<"\n";
+  double G=distribution(generator);
   return G ;
 }
 //periotT doit etre renseigné en jours , à égalment faire en changant d'echelles dt=NbrP/dateM
-list<double> simuler_une_trajectoire(long periodT, double r, double ecartType, double nbreLoiNormal){
-;
+list<double> MC::simuler_une_trajectoire(double nbreLoiNormal){
 double p[periodT];
 p[0]= S_0;
 //on calcule la periode 1= p[1]
@@ -43,10 +69,10 @@ p[0]= S_0;
 return pl;
 }
 //sous jacents=> simuler_une_trajectoire ou simuler_N_trajectoire
-list<list<double> > simuler_N_trajectoire(int N, long periodT, double r, double ecartType, double nbreLoiNormal){
+list<list<double> > MC::simuler_N_trajectoire(double nbreLoiNormal){
 list<list<double> > res;
 for(int i=0;i<N;i++){
-  list<double> p (simuler_une_trajectoire( periodT,r, ecartType,nbreLoiNormal));
+  list<double> p (simuler_une_trajectoire( nbreLoiNormal));
   list<list<double> >::iterator it= res.begin();
   advance(it,i);
   res.insert(it, p);
@@ -54,7 +80,7 @@ for(int i=0;i<N;i++){
 }
 return res;
 }
-double calculerPayOff(list<double> x, double strikeK, bool isCall){
+double MC::calculerPayOff(list<double> x, bool isCall){
   double payOff;
   if(isCall){
     list<double>::iterator it=x.end();
@@ -68,20 +94,20 @@ double calculerPayOff(list<double> x, double strikeK, bool isCall){
    return payOff;
 }
 
- list<double> calculerPayOffs(list<list<double> > lx, double strikeK, bool isCall){
+ list<double> MC::calculerPayOffs(list<list<double> > lx, bool isCall){
   list<double>  payOffs;
   int i=0;
   for(list<list<double> >::iterator it= lx.begin();it!=lx.end();it++){
     list<double> ::iterator it2= payOffs.begin();
     advance(it2,i);
-    double p= calculerPayOff(*it,strikeK, isCall);
+    double p= calculerPayOff(*it,isCall);
     payOffs.insert(it2,p);
     i++;
   }
   return payOffs;
 }
-double calculerMoyennePayOffs(list<list<double> > lx, double strikeK, bool isCall){
- list<double>  payOffs=calculerPayOffs(lx, strikeK, isCall);
+double MC::calculerMoyennePayOffs(list<list<double> > lx, bool isCall){
+ list<double>  payOffs=calculerPayOffs(lx,isCall);
  double payOffs_Sum=0.0;
    for(list<double> ::iterator it= payOffs.begin();it!=payOffs.end();it++){
      payOffs_Sum+=*it;
@@ -89,7 +115,7 @@ double calculerMoyennePayOffs(list<list<double> > lx, double strikeK, bool isCal
    return payOffs_Sum/payOffs.size();
 }
 
-void afficherNTraj(list<list<double> > N_traj){
+void MC::afficherNTraj(list<list<double> > N_traj){
   for(list<list<double> >::iterator it=N_traj.begin();it!=N_traj.end();it++){
     for(list<double>::iterator it2=it->begin();it2!=it->end();it2++)
       cout <<*it2<<" \n";
@@ -97,25 +123,25 @@ void afficherNTraj(list<list<double> > N_traj){
 }
 //on fait l'espérence
 // esperence =moyenne
-double getPrixCall(long periodT, double r, double ecartType, double strikeK){
+double MC::getPrixCall(){
   bool isCall=true;
   //on estime N
   double nbreLoiNormal = genererNbreLoiNormale();
-  list<list<double> > N_traj (simuler_N_trajectoire(N,periodT,r,ecartType,nbreLoiNormal));
+  list<list<double> > N_traj (simuler_N_trajectoire(nbreLoiNormal));
   // cout<<"affichage des trajectoires: "<<" \n";
   //afficherNTraj(N_traj);
-  double MPay_Off = calculerMoyennePayOffs(N_traj,strikeK,isCall);
+  double MPay_Off = calculerMoyennePayOffs(N_traj,isCall);
   cout<<"verification Moyenne des payoffs: "<<MPay_Off<<"\n";
   double prixCall = exp(-(r*periodT))*MPay_Off;
   return prixCall;
 }
 // formule avec l'espérence => moyenne
-double getPrixPut(long periodT, double r, double ecartType, double strikeK){
+double MC::getPrixPut(){
   bool isCall=false;
   //on estime N
   double nbreLoiNormal = genererNbreLoiNormale();
-  list<list<double> > N_traj (simuler_N_trajectoire(N,periodT,r,ecartType,nbreLoiNormal));
-  double MPay_Off = calculerMoyennePayOffs(N_traj,strikeK,isCall);
+  list<list<double> > N_traj (simuler_N_trajectoire(nbreLoiNormal));
+  double MPay_Off = calculerMoyennePayOffs(N_traj,isCall);
   cout<<"verification Moyenne des payoffs: "<<MPay_Off<<"\n";
   double prixPut = exp(-(r*periodT))*MPay_Off;
   return prixPut;
@@ -160,9 +186,9 @@ list<double> traj (simuler_une_trajectoire( periodT,r, ecartType,nbreLoiNormal))
     }
   double MPay_Off = calculerMoyennePayOffs(N_traj,strikeK,isCall);
   cout<<"moyenne de payOffs= "<<MPay_Off;*/
-
-double prixCall = getPrixCall(periodT, r,ecartType, strikeK);
-double prixPut=getPrixPut(periodT,r,ecartType,strikeK);
+MC obj= MC(0.02,100.00,0.25,60.00,1000,1);
+double prixCall = obj.getPrixCall();
+double prixPut=obj.getPrixPut();
 cout<<"prix du call"<<prixCall<<"\n" ;
 cout<<"prix du put "<<prixPut<<"\n";
 double controlValuePC=prixCall-prixPut;
