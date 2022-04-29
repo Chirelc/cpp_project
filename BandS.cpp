@@ -10,7 +10,6 @@ class BandS{
 private:
   double prixStrikeK;
   double tauxR;
-  double dividende;
   double ecartType;
   long periodT;
   double S_0;
@@ -29,7 +28,6 @@ double getPrixCall();
 double getPrixPut();
 double calculerLoiNormaleNonCummule(double var);
 double getSensibiliteDelta(bool isCall);
-double getSensibiliteDelta(double dividende,bool isCall);
 double getSensibiliteGamma();
 double getSensibiliteVega();
 double getSensibiliteRho(bool isCall);
@@ -129,6 +127,7 @@ double BandS::calculerLoiNormaleNonCummule(double var){
   default_random_engine generator (seed);
   normal_distribution<double> distribution(0.0,var);
   double G=distribution(generator);
+  //cout<<"ln: "<<G;
   return G ;
 }
 
@@ -141,7 +140,7 @@ double BandS::getSensibiliteDelta(bool isCall){
   }
 }
 
-double BandS::getSensibiliteDelta(double dividende,bool isCall){
+double BandS::getSensibiliteDelta(bool isCall,double dividende){
     double d1=calculerD1(dividende);
   if(isCall){
     return calculerLoiNormale(d1);
@@ -217,8 +216,11 @@ double tauxR=0.02;
 double ecartType=0.25;
 long periodT=1;
 BandS obj = BandS(prixSt,ecartType,periodT,tauxR,prixStrikeK);
+double d1=obj.calculerD1();
+obj.calculerLoiNormaleNonCummule(d1);
 double call=obj.getPrixCall();
 double put= obj.getPrixPut();
 cout<<"put :"<<put;
 cout<<"call :"<<call;
+
 }*/
