@@ -152,8 +152,8 @@ double MC::getPrixPut(){
 
 }*/
 //controle moyenne de payoff st-ke(-rt)
-int main()
-{
+/*int main()
+{*/
  /*int nrolls=10000;  // number of experiments
  int nstars=100;    // maximum number of stars to distribute
 unsigned seed = chrono::system_clock::now().time_since_epoch().count();
@@ -186,7 +186,7 @@ list<double> traj (simuler_une_trajectoire( periodT,r, ecartType,nbreLoiNormal))
     }
   double MPay_Off = calculerMoyennePayOffs(N_traj,strikeK,isCall);
   cout<<"moyenne de payOffs= "<<MPay_Off;*/
-MC obj= MC(0.02,100.00,0.25,60.00,1000,1);
+/*MC obj= MC(0.02,100.00,0.25,60.00,10000,1);
 double prixCall = obj.getPrixCall();
 double prixPut=obj.getPrixPut();
 cout<<"prix du call"<<prixCall<<"\n" ;
@@ -196,4 +196,4 @@ cout<<"valeur de control call-put: "<< controlValuePC<<"\n";
 // faire une fonction pour ces valeurs de control renvoyant un bool formule de parité
 
 
-}
+}*/
