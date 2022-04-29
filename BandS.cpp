@@ -5,9 +5,10 @@
 #include<algorithm>
 #include <iomanip>
 #include <cmath>
+#include "Parite.cpp"
 using namespace std;
 class BandS{
-private:
+private :
   double prixStrikeK;
   double tauxR;
   double ecartType;
@@ -37,6 +38,8 @@ double getSensibiliteGamma(double dividende);
 double getSensibiliteVega(double dividende);
 double getSensibiliteRho(bool isCall,double dividende);
 double getSensibiliteTheta(bool isCall,double dividende);
+bool getParite();
+bool getParite(double dividende);
 };
 
 
@@ -207,6 +210,19 @@ double BandS::getSensibiliteRho(bool isCall,double dividende){
     return -prixStrikeK*periodT*exp(-tauxR*periodT)*calculerLoiNormale(Md2);
   }
 
+}
+bool BandS::getParite(){
+Parite p= Parite(prixSt,prixStrikeK,getPrixCall(), getPrixPut(),tauxR,periodT);
+bool res;
+res=p.isValueOk();
+return res;
+}
+
+bool BandS::getParite(double dividende){
+Parite p= Parite(prixSt,prixStrikeK,getPrixCall(dividende), getPrixPut(dividende),tauxR,periodT);
+bool res;
+res=p.isValueOk();
+return res;
 }
 
 /*int main(){

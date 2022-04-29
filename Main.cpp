@@ -88,7 +88,7 @@ if(methode=="Black and Sholes"){
   cin>>tauxR;
   cout<<"entrer la date d'échéance de l'option (en année)"<<"\n";
   cin>>periodT;
-  cout<<"entrer la valeur du sous jacent au temp t:"<<"\n";
+  cout<<"entrer la valeur du sous-jacent au temp t:"<<"\n";
   cin>>prixSt;
   cout<<"entrer la volatilité du sous jacent: "<<"\n";
   cin>>ecartType;
@@ -134,12 +134,19 @@ if(methode=="Black and Sholes"){
   cout<<"Gamma: "<<gamma<<"\n";
   cout<<"l'indicateur Vega qui détermine la variation de la volatilité du sous-jacent: "<<"\n";
   cout<<"Vega: "<<vega<<"\n";
-  cout<<"l'indicateur Theta qui détermine la sensibilité du prix du sous-jacent lors de la variation de la maturitée de l'option: "<<"\n";
+  cout<<"l'indicateur Theta qui détermine la sensibilitée du prix du sous-jacent lors de la variation de la maturitée de l'option: "<<"\n";
   cout<<"Theta pour un Put: "<<thetaP<<"\n";
   cout<<"Theta pour un Call: "<<thetaC<<"\n";
-  cout<<"l'indicateur Rho qui determine la sensibilité du prix du sous-jacent à une variation du taux sans risque "<<"\n";
+  cout<<"l'indicateur Rho qui détermine la sensibilitée du prix du sous-jacent à une variation du taux sans risque "<<"\n";
   cout<<"Rho pour un Put: "<<rhoP<<"\n";
   cout<<"Rho pour un Call: "<<rhoC<<"\n";
-
+  cout<<"Vérification de la validitée des valeurs calculés par la librairie: "<<"\n";
+  if(bands.getParite()){
+    cout<<"les bornes sur les prix sont bien respectés "<<"\n";
+  }else{
+    cout<<"les bornes sur les prix  ne sont pas respectés "<<"\n";
+    cout<<"il y'a une erreur de calcule pour une valeur  "<<"\n";
+  }
 }
+
 }
