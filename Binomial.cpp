@@ -17,8 +17,9 @@ double prixS0;
 double prixStrikeK;
 double tauxR;
 long periodT;
+long n;
 public:
-Binomial(double ecartType,double prixS0,double prixStrikeK,double tauxR,long periodT);
+Binomial(double ecartType,double prixS0,double prixStrikeK,double tauxR,long periodT,long n);
 double calculerProbabiliteHausseU();
 double calculerProbabiliteBaisseD();
 double calculerPayOffHausseU(bool isCall);
@@ -26,18 +27,19 @@ double calculerPayOffBaisseD(bool isCall);
 double getPrixCall();
 double getPrixPut();
 };
-Binomial::Binomial(double ecartType,double prixS0,double prixStrikeK,double tauxR,long periodT){
+Binomial::Binomial(double ecartType,double prixS0,double prixStrikeK,double tauxR,long periodT,long n ){
   this->ecartType=ecartType;
   this->prixS0=prixS0;
   this->prixStrikeK=prixStrikeK;
   this->tauxR=tauxR;
   this->periodT=periodT;
+  this->n=n;
 }
 double Binomial::calculerProbabiliteHausseU(){
-return exp(ecartType*sqrt(periodT));
+return exp(ecartType*sqrt(periodT/n));
 }
 double Binomial::calculerProbabiliteBaisseD(){
-  return exp(-(ecartType*sqrt(periodT)));
+  return exp(-(ecartType*sqrt(periodT/n)));
 }
 // j'ai ajouté prixStrike
 //ajout isCall or pUT
@@ -62,6 +64,7 @@ double Binomial::calculerPayOffBaisseD(bool isCall){
   }
   return payOffBaisseD;
 }
+// a refaire avec plus de periodes -> fonction recurante ?
 double Binomial::getPrixCall(){
 bool isCall=true;
 double  p= (exp(-tauxR*periodT)-calculerProbabiliteBaisseD())/(calculerProbabiliteHausseU()-calculerProbabiliteBaisseD());
@@ -75,14 +78,14 @@ double Binomial::getPrixPut(){
   double prixPut = exp(-tauxR*periodT)*(p*calculerPayOffHausseU(isCall)+(1-p)*calculerPayOffBaisseD(isCall));
      return prixPut;
 }
-int main(){
-Binomial obj = Binomial(0.25,100.00,60.00,0.02,1);
+/*int main(){
+Binomial obj = Binomial(0.25,100.00,60.00,0.02,1,1);
 double priceP = obj.getPrixPut();
-cout<<"prix du put: "<<priceP<<"\n";
+cout<<"prix du put: "<<priceP<<"\n";*/
 /*double payOffCb= calculerPayOffBaisseD( prixS0, ecartType,periodT, prixStrikeK,true);
 double payOffCh= calculerPayOffHausseU( prixS0, ecartType,periodT, prixStrikeK,true);
 cout<<"payOff baisse:"<<payOffCb<<" ";
 cout<<"payOff hausse "<<payOffCh<<" ";*/
-double priceC = obj.getPrixCall();
+/*double priceC = obj.getPrixCall();
 cout<<"prix du call: "<<priceC<<"\n";
-}
+}*/
