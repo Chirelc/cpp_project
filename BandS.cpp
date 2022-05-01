@@ -74,7 +74,7 @@ list<double> getSt();
   list<double> ::iterator it= list_w.begin();
   list<double> ::iterator it2= list_st.begin();
   double sumW=0;
-  for(int i=0;i<periodT;i+deltaT){
+  for(double i=0.0;i<periodT;i+=deltaT){
   advance(it,i);
   advance(it2,i);
   double W =calculerLoiNormaleNonCummule(v,v2);
