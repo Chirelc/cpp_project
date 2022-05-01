@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h>
+#include <list>
 #include "Binomial.cpp"
 #include "BandS.cpp"
 #include "MC.cpp"
@@ -79,8 +80,23 @@ if(methode=="Black and Sholes"){
   double thetaP;
   double rhoP;
   double rhoC;
-  //double S_0;
-  double prixSt;
+  double S_0;
+  double mu;
+  double n;
+  bool parite ;
+  list<double> list_st;
+  /*
+  list<double> list_st;
+  double prixStrikeK;
+  double tauxR;
+  double ecartType;
+  long periodT;
+  double S_0;
+  list<double> list_St;
+  double n;
+  double mu;
+public:
+BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double prixStrikeK);*/
   cout<<"rentrer les valeurs suivantes:"<<"\n";
   cout<<"entrer le prix de l'exercice: "<<"\n";
   cin>>prixStrikeK;
@@ -88,45 +104,56 @@ if(methode=="Black and Sholes"){
   cin>>tauxR;
   cout<<"entrer la date d'échéance de l'option (en année)"<<"\n";
   cin>>periodT;
-  cout<<"entrer la valeur du sous-jacent au temp t:"<<"\n";
-  cin>>prixSt;
   cout<<"entrer la volatilité du sous jacent: "<<"\n";
   cin>>ecartType;
-  //cout<<"entrer la valeur du sous jacent au temp 0:"<<"\n";
-  //cin>>S_0;
-  BandS bands = BandS(prixSt,ecartType, periodT,tauxR,prixStrikeK);
+  cout<<"entrer le nombre de périodes: "<<"\n";
+  cin>>n;
+  cout<<"entrer le drift du mouvement brownien mu: "<<"\n";
+  cin>>mu;
+  cout<<"entrer la valeur du sous jacent au temp 0:"<<"\n";
+  cin>>S_0;
+  BandS bands = BandS(mu,n,S_0,ecartType, periodT,tauxR,prixStrikeK);
   string isDiv;
     cout<<"y'a t-il un dividende ? (oui ou non) "<<"\n";
     cin>>isDiv;
-  if(isDiv=="oui"){
-  double dividende;
-  cout<<"entrer le dividende"<<"\n";
-  cin>>dividende;
-  Call= bands.getPrixCall(dividende);
-  Put=bands.getPrixPut(dividende);
-  deltaC=bands.getSensibiliteDelta(true,dividende);
-  deltaP=bands.getSensibiliteDelta(false,dividende);
-  gamma=bands.getSensibiliteGamma(dividende);
-  vega=bands.getSensibiliteVega(dividende);
-  thetaC=bands.getSensibiliteTheta(true,dividende);
-  thetaP=bands.getSensibiliteTheta(false,dividende);
-  rhoP=bands.getSensibiliteRho(false,dividende);
-  rhoC=bands.getSensibiliteRho(true,dividende);
-  }else{
-  Call= bands.getPrixCall();
-  Put=bands.getPrixPut();
-  deltaC=bands.getSensibiliteDelta(true);
-  deltaP=bands.getSensibiliteDelta(false);
-  gamma=bands.getSensibiliteGamma();
-  vega=bands.getSensibiliteVega();
-  thetaC=bands.getSensibiliteTheta(true);
-  thetaP=bands.getSensibiliteTheta(false);
-  rhoP=bands.getSensibiliteRho(false);
-  rhoC=bands.getSensibiliteRho(true);
+    if(isDiv=="oui"){
+    double dividende;
+    cout<<"entrer le dividende"<<"\n";
+    cin>>dividende;
   }
-  cout<<"voici le prix du Call: "<<Call<<"\n";
-  cout<<"voici le prix du Put: "<<Put<<"\n";
-  cout<<"voici les grecs: "<<"\n";
+  list_st=bands.simulation_trajectoire_mvt_brownien();
+  int i=0;
+  for(list<double> ::iterator it= list_st.begin();it!=list_st.end();it++){
+    i++;
+    if(isDiv=="oui"){
+    Call= bands.getPrixCall(*it,dividende);
+    Put=bands.getPrixPut(*it,dividende);
+    deltaC=bands.getSensibiliteDelta(*it,true,dividende);
+    deltaP=bands.getSensibiliteDelta(*it,false,dividende);
+    gamma=bands.getSensibiliteGamma(*it,dividende);
+    vega=bands.getSensibiliteVega(*it,dividende);
+    thetaC=bands.getSensibiliteTheta(*it,true,dividende);
+    thetaP=bands.getSensibiliteTheta(*it,false,dividende);
+    rhoP=bands.getSensibiliteRho(*it,false,dividende);
+    rhoC=bands.getSensibiliteRho(*it,true,dividende);
+    }else{
+    Call= bands.getPrixCall(*it);
+    Put=bands.getPrixPut(*it);
+    deltaC=bands.getSensibiliteDelta(*it,true);
+    deltaP=bands.getSensibiliteDelta(*it,false);
+    gamma=bands.getSensibiliteGamma(*it);
+    vega=bands.getSensibiliteVega(*it);
+    thetaC=bands.getSensibiliteTheta(*it,true);
+    thetaP=bands.getSensibiliteTheta(*it,false);
+    rhoP=bands.getSensibiliteRho(*it,false);
+    rhoC=bands.getSensibiliteRho(*it,true);
+    }
+    cout<<"pour t= "<<i <<"voici le prix du Call: "<<Call<<" et voici le prix du Put: "<<Put<<"\n";
+    parite = bands.getParite(*it);
+    cout<<"st= "<<*it;
+  }
+
+  cout<<"voici les grecs pour le sous-jacent à maturité: "<<"\n";
   cout<<"l'indicateur Delta: qui détermine la sensibilitée du prix à une variation du sous-jacent: "<<"\n";
   cout<<"Delta pour un put: "<<deltaP<<"\n";
   cout<<"Delta pour un Call: "<<deltaC<<"\n";
@@ -141,12 +168,12 @@ if(methode=="Black and Sholes"){
   cout<<"Rho pour un Put: "<<rhoP<<"\n";
   cout<<"Rho pour un Call: "<<rhoC<<"\n";
   cout<<"Vérification de la validitée des valeurs calculés par la librairie: "<<"\n";
-  if(bands.getParite()){
+  cout<<"la vérification à lieu uniquement pour le call et put à maturité: "<<"\n";
+  if(parite){
     cout<<"les bornes sur les prix sont bien respectés "<<"\n";
   }else{
     cout<<"les bornes sur les prix  ne sont pas respectés "<<"\n";
     cout<<"il y'a une erreur de calcule pour une valeur  "<<"\n";
   }
 }
-
 }
