@@ -115,11 +115,11 @@ double Binomial2::getPrixPut(){
   }
   return prixArbre[0][0];
 }
-int main(){
+/*int main(){
 Binomial2 obj = Binomial2(0.25,100.00,60.00,0.02,10,10);
 cout<<"prix du put: "<<obj.getPrixPut();
 cout<<"prix du call: "<<obj.getPrixCall();
-}
+}*/
 
 /*double payOffCb= calculerPayOffBaisseD( prixS0, ecartType,periodT, prixStrikeK,true);
 double payOffCh= calculerPayOffHausseU( prixS0, ecartType,periodT, prixStrikeK,true);
