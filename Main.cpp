@@ -116,8 +116,8 @@ BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double p
   string isDiv;
     cout<<"y'a t-il un dividende ? (oui ou non) "<<"\n";
     cin>>isDiv;
-    if(isDiv=="oui"){
     double dividende;
+    if(isDiv=="oui"){
     cout<<"entrer le dividende"<<"\n";
     cin>>dividende;
   }
