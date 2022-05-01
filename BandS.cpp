@@ -14,46 +14,48 @@ private :
   double tauxR;
   double ecartType;
   long periodT;
-  double S_0;
+  //double S_0;
+  double prixSt;
   list<double> list_St;
   double n;
   double mu;
 public:
-BandS(double mu,double n ,double S_0,double ecartType, long periodT, double tauxR, double prixStrikeK);
-list<double> simulation_trajectoire_mvt_brownien();
-double calculerD1( double prixSt,double dividende);
-double calculerD2(double prixSt,double dividende);
-double calculerD1(double prixSt);
-double calculerD2(double prixSt);
+BandS(double mu,double n ,double prixSt,double ecartType, long periodT, double tauxR, double prixStrikeK);
+//list<double> simulation_trajectoire_mvt_brownien();
+double calculerD1( double dividende);
+double calculerD2(double dividende);
+double calculerD1();
+double calculerD2();
 double calculerLoiNormale(double var);
-double getPrixCall(double prixSt, double dividende);
-double getPrixPut( double prixSt,double dividende);
-double getPrixCall(double prixSt);
-double getPrixPut(double prixSt);
+double getPrixCall( double dividende);
+double getPrixPut( double dividende);
+double getPrixCall();
+double getPrixPut();
 double calculerLoiNormaleNonCummule(double a,double var);
-double getSensibiliteDelta(double prixSt,bool isCall);
-double getSensibiliteGamma(double prixSt);
-double getSensibiliteVega(double prixSt);
-double getSensibiliteRho(double prixSt,bool isCall);
-double getSensibiliteTheta(double prixSt,bool isCall);
-double getSensibiliteDelta(double prixSt,bool isCall,double dividende);
-double getSensibiliteGamma(double prixSt,double dividende);
-double getSensibiliteVega(double prixSt,double dividende);
-double getSensibiliteRho(double prixSt,bool isCall,double dividende);
-double getSensibiliteTheta(double prixSt,bool isCall,double dividende);
-bool getParite(double prixSt);
-bool getParite(double prixSt,double dividende);
-list<double> getSt();
+double getSensibiliteDelta(bool isCall);
+double getSensibiliteGamma();
+double getSensibiliteVega();
+double getSensibiliteRho(bool isCall);
+double getSensibiliteTheta(bool isCall);
+double getSensibiliteDelta(bool isCall,double dividende);
+double getSensibiliteGamma(double dividende);
+double getSensibiliteVega(double dividende);
+double getSensibiliteRho(bool isCall,double dividende);
+double getSensibiliteTheta(bool isCall,double dividende);
+bool getParite();
+bool getParite(double dividende);
+//list<double> getSt();
 };
 
-  BandS::BandS(double mu,double n,double S_0, double ecartType, long periodT, double tauxR, double prixStrikeK){
+  BandS::BandS(double mu,double n,double prixSt, double ecartType, long periodT, double tauxR, double prixStrikeK){
     this->n=n;
     this->mu=mu;
     this->ecartType=ecartType;
     this->periodT=periodT;
     this->tauxR=tauxR;
     this->prixStrikeK=prixStrikeK;
-    this->S_0=S_0;
+    this->prixSt=prixSt;
+    //this->S_0=S_0;
   }
   double BandS::calculerLoiNormaleNonCummule(double a, double var){
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();
@@ -65,7 +67,7 @@ list<double> getSt();
   }
 
 
-  list<double> BandS::simulation_trajectoire_mvt_brownien(){
+  /*list<double> BandS::simulation_trajectoire_mvt_brownien(){
   double deltaT=periodT/n;
   double v2=ecartType*sqrt(deltaT);
   double v= mu*deltaT;
@@ -81,21 +83,21 @@ list<double> getSt();
   sumW+=W;
   list_w.insert(it,sumW);
   list_st.insert (it2,S_0*exp(sumW));
-}
+}*/
   /*list<double> ::iterator it3= list_st.begin();
   double st;
   for(int i=0;i<t;i++){
   advance(it3,i);
   }
-  st=*it3;*/
+  st=*it3;
   this->list_St=list_st;
   return list_st;
-  }
-double BandS::calculerD1(double prixSt){
+}*/
+double BandS::calculerD1(){
 return (log(prixSt/prixStrikeK)+(tauxR+(pow(ecartType,2.00)/2)*periodT))/(ecartType*sqrt(periodT));
 }
 
-double BandS::calculerD1(double prixSt,double dividende){
+double BandS::calculerD1(double dividende){
   return (log(prixSt/prixStrikeK)+(tauxR - dividende +(pow(ecartType,2.00)/2)*periodT))/(ecartType*sqrt(periodT));
 }
 /*double calculerLoiNormaleD1(double prixSt, double ecartType, long periodT, double tauxR, double prixStrikeK){
@@ -115,12 +117,12 @@ double BandS::calculerD1(double prixSt,double dividende){
   return N;
 }*/
 
-double BandS::calculerD2(double prixSt){
-double d1=calculerD1(prixSt);
+double BandS::calculerD2(){
+double d1=calculerD1();
 return d1-(ecartType*sqrt(periodT));
 }
-double BandS::calculerD2(double prixSt,double dividende){
-  double d1=calculerD1(prixSt,dividende);
+double BandS::calculerD2(double dividende){
+  double d1=calculerD1(dividende);
   return d1-(ecartType*sqrt(periodT));
 }
 double BandS::calculerLoiNormale(double var)
@@ -128,37 +130,37 @@ double BandS::calculerLoiNormale(double var)
     return erfc(-var / sqrt(2))/2;
 }
 
-double BandS::getPrixCall(double prixSt){
-  double d1=calculerD1(prixSt);
-  double d2=calculerD2( prixSt);
+double BandS::getPrixCall(){
+  double d1=calculerD1();
+  double d2=calculerD2( );
   double Nd1=calculerLoiNormale(d1);
   double Nd2=calculerLoiNormale(d2);
   return (prixSt*Nd1)-(prixStrikeK*exp(-tauxR*periodT)*Nd2);
 }
-double BandS::getPrixPut(double prixSt ){
-  double d1=-calculerD1( prixSt);
-  double d2=-calculerD2( prixSt);
+double BandS::getPrixPut( ){
+  double d1=-calculerD1();
+  double d2=-calculerD2();
   double Nd1= calculerLoiNormale(d1);
   double Nd2= calculerLoiNormale(d2);
   return (prixStrikeK*exp(-tauxR*periodT)*Nd2)-(prixSt*Nd1);
 }
-double BandS::getPrixCall(double prixSt,double dividende){
-  double d1= calculerD1(prixSt,dividende);
-  double d2=calculerD2(prixSt,dividende);
+double BandS::getPrixCall(double dividende){
+  double d1= calculerD1(dividende);
+  double d2=calculerD2(dividende);
   double Nd1=calculerLoiNormale(d1);
   double Nd2=calculerLoiNormale(d2);
   return (prixSt*exp(-dividende*periodT)*Nd1)-(prixStrikeK*exp(-tauxR*periodT)*Nd2);
 }
-double BandS::getPrixPut(double prixSt,double dividende){
-  double d1=-calculerD1(prixSt);
-  double d2=-calculerD2( prixSt);
+double BandS::getPrixPut(double dividende){
+  double d1=-calculerD1();
+  double d2=-calculerD2( );
   double Nd1= calculerLoiNormale(d1);
   double Nd2= calculerLoiNormale(d2);
   return (prixStrikeK*exp(-tauxR*periodT)*Nd2)-(prixSt*exp(-dividende*periodT)*Nd1);
 }
 
 
-double BandS::getSensibiliteDelta(double prixSt,bool isCall){
+double BandS::getSensibiliteDelta(bool isCall){
   double d1=calculerD1(prixSt);
   if(isCall){
     return calculerLoiNormale(d1);
@@ -167,8 +169,8 @@ double BandS::getSensibiliteDelta(double prixSt,bool isCall){
   }
 }
 
-double BandS::getSensibiliteDelta(double prixSt,bool isCall,double dividende){
-    double d1=calculerD1(prixSt,dividende);
+double BandS::getSensibiliteDelta(bool isCall,double dividende){
+    double d1=calculerD1(dividende);
   if(isCall){
     return calculerLoiNormale(d1);
   }else{
@@ -176,47 +178,47 @@ double BandS::getSensibiliteDelta(double prixSt,bool isCall,double dividende){
   }
 }
 
-double BandS::getSensibiliteGamma(double prixSt){
-  double d1=calculerD1(prixSt);
+double BandS::getSensibiliteGamma(){
+  double d1=calculerD1();
   return calculerLoiNormaleNonCummule(0.0,d1)/(prixSt*ecartType*sqrt(periodT));
 
 }
-double BandS::getSensibiliteGamma(double prixSt,double dividende){
-  double d1=calculerD1(prixSt,dividende);
+double BandS::getSensibiliteGamma(double dividende){
+  double d1=calculerD1(dividende);
   return calculerLoiNormaleNonCummule(0.0,d1)/(prixSt*ecartType*sqrt(periodT));
 
 }
-double BandS::getSensibiliteVega(double prixSt){
-  double d1=calculerD1(prixSt);
+double BandS::getSensibiliteVega(){
+  double d1=calculerD1();
   return prixSt*calculerLoiNormaleNonCummule(0.0,d1)*sqrt(periodT);
 }
 
-double BandS::getSensibiliteVega(double prixSt,double dividende){
-  double d1=calculerD1(prixSt,dividende);
+double BandS::getSensibiliteVega(double dividende){
+  double d1=calculerD1(dividende);
   return prixSt*calculerLoiNormaleNonCummule(0.0,d1)*sqrt(periodT);
 }
-double BandS::getSensibiliteTheta(double prixSt,bool isCall){
-  double d1=calculerD1(prixSt);
-  double d2=calculerD2(prixSt);
+double BandS::getSensibiliteTheta(bool isCall){
+  double d1=calculerD1();
+  double d2=calculerD2();
   if(isCall){
       return (prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))+tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
   }else{
   return -(prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))-tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
   }
 }
-double BandS::getSensibiliteTheta(double prixSt,bool isCall,double dividende ){
-  double d1=calculerD1(prixSt,dividende);
-  double d2=calculerD2(prixSt,dividende);
+double BandS::getSensibiliteTheta(bool isCall,double dividende ){
+  double d1=calculerD1(dividende);
+  double d2=calculerD2(dividende);
   if(isCall){
       return (prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))+tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
   }else{
   return -(prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))-tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
   }
 }
-double BandS::getSensibiliteRho(double prixSt,bool isCall){
-  double d1=calculerD1(prixSt);
-  double d2=calculerD2(prixSt);
-  double Md2=-calculerD2(prixSt);
+double BandS::getSensibiliteRho(bool isCall){
+  double d1=calculerD1();
+  double d2=calculerD2();
+  double Md2=-calculerD2();
   if(isCall){
     return prixStrikeK*periodT*exp(-tauxR*periodT)*calculerLoiNormale(d2);
   }else{
@@ -224,10 +226,10 @@ double BandS::getSensibiliteRho(double prixSt,bool isCall){
   }
 
 }
-double BandS::getSensibiliteRho(double prixSt,bool isCall,double dividende){
-  double d1=calculerD1(prixSt,dividende);
-  double d2=calculerD2(prixSt,dividende);
-  double Md2=-calculerD2(prixSt,dividende);
+double BandS::getSensibiliteRho(bool isCall,double dividende){
+  double d1=calculerD1(dividende);
+  double d2=calculerD2(dividende);
+  double Md2=-calculerD2(dividende);
   if(isCall){
     return prixStrikeK*periodT*exp(-tauxR*periodT)*calculerLoiNormale(d2);
   }else{
@@ -235,22 +237,22 @@ double BandS::getSensibiliteRho(double prixSt,bool isCall,double dividende){
   }
 
 }
-bool BandS::getParite(double prixSt){
-Parite p= Parite(prixSt,prixStrikeK,getPrixCall(prixSt), getPrixPut(prixSt),tauxR,periodT);
+bool BandS::getParite(){
+Parite p= Parite(prixSt,prixStrikeK,getPrixCall(), getPrixPut(),tauxR,periodT);
 bool res;
 res=p.isValueOk();
 return res;
 }
 
-bool BandS::getParite(double prixSt,double dividende){
-Parite p= Parite(prixSt,prixStrikeK,getPrixCall(prixSt,dividende), getPrixPut(prixSt,dividende),tauxR,periodT);
+bool BandS::getParite(double dividende){
+Parite p= Parite(prixSt,prixStrikeK,getPrixCall(dividende), getPrixPut(dividende),tauxR,periodT);
 bool res;
 res=p.isValueOk();
 return res;
 }
-list<double> BandS::getSt(){
+/*list<double> BandS::getSt(){
   return list_St;
-}
+}*/
 
 /*int main(){
 double prixSt=100.00;
