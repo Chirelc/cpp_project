@@ -1,19 +1,8 @@
 #include <iostream>
 #include <string.h>
 #include <algorithm>
+#include"Parite.h"
 using namespace std;
-class Parite{
-public:
-double prixSt;
-double prixStrikeK;
-double prixCall;
-double prixPut;
-double tauxR;
-long periodT;
-public:
-Parite(double prixSt,double prixStrikeK,double prixCall,double prixPut,double tauxR,long periodT);
-bool isValueOk();
-};
 Parite::Parite(double prixSt,double prixStrikeK,double prixCall,double prixPut,double tauxR,long periodT){
   this->prixSt=prixSt;
   this->prixStrikeK=prixStrikeK;

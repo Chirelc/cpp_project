@@ -4,6 +4,7 @@
 #include "Binomial.cpp"
 #include "BandS.cpp"
 #include "MC.cpp"
+
 using namespace std;
 int main(){
 string methode;

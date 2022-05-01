@@ -1,32 +1,4 @@
-#include <iostream>
-#include <random>
-//#include <chrono>
-#include <tgmath.h>
-#include <list>
-#include<algorithm>
-using namespace std;
-/*const double ecartType=0.25;
-const long periodT=1;
-const double prixS0=100;
-const double prixStrikeK=60.00;
-const double tauxR=0.02;*/
-class Binomial{
-private:
-double ecartType;
-double prixS0;
-double prixStrikeK;
-double tauxR;
-long periodT;
-long n;
-public:
-Binomial(double ecartType,double prixS0,double prixStrikeK,double tauxR,long periodT,long n);
-double calculerProbabiliteHausseU();
-double calculerProbabiliteBaisseD();
-double calculerPayOffHausseU(bool isCall);
-double calculerPayOffBaisseD(bool isCall);
-double getPrixCall();
-double getPrixPut();
-};
+#include"Binomial.h"
 Binomial::Binomial(double ecartType,double prixS0,double prixStrikeK,double tauxR,long periodT,long n ){
   this->ecartType=ecartType;
   this->prixS0=prixS0;
@@ -35,6 +7,7 @@ Binomial::Binomial(double ecartType,double prixS0,double prixStrikeK,double taux
   this->periodT=periodT;
   this->n=n;
 }
+
 double Binomial::calculerProbabiliteHausseU(){
 return exp(ecartType*sqrt(periodT/n));
 }
@@ -43,7 +16,32 @@ double Binomial::calculerProbabiliteBaisseD(){
 }
 // j'ai ajouté prixStrike
 //ajout isCall or pUT
-double Binomial::calculerPayOffHausseU(bool isCall){
+vector<vector<double> > Binomial::calculerPrixSt(){
+vector<vector<double> > prixSt(n + 1, vector<double>(n + 1, 0));
+double d=calculerProbabiliteBaisseD();
+double u=calculerProbabiliteHausseU();
+for (int j = 0; j <= n; j++) {
+     for (int i = 0; i <= j; i++) {
+         prixSt [i][j] = prixS0*pow(u, j - i)*pow(d, i);
+     }
+ }
+return prixSt;
+}
+vector<vector<double> > Binomial::calculerPayOffs(bool isCall){
+vector<vector<double> >  valeurSt=calculerPrixSt();
+vector<vector<double> >  prixArbre(n + 1, vector<double>(n + 1, 0));
+ for (int i = 0; i <= n; i++) {
+   if(isCall){
+   prixArbre [i][n]=max(valeurSt[i][n] - prixStrikeK, 0.0);
+ }else{
+   prixArbre [i][n]=max(prixStrikeK-valeurSt[i][n], 0.0);
+ }
+
+ }
+  return prixArbre;
+}
+
+/*double Binomial::calculerPayOffHausseU(bool isCall){
 double p=prixS0*calculerProbabiliteHausseU();
 double payOffHausseU;
 if(isCall){
@@ -64,24 +62,37 @@ double Binomial::calculerPayOffBaisseD(bool isCall){
   }
   return payOffBaisseD;
 }
-// a refaire avec plus de periodes -> fonction recurante ?
+// a refaire avec plus de periodes -> fonction recurante ?*/
 double Binomial::getPrixCall(){
-bool isCall=true;
+double dt= periodT/n;
+double Call;
 double  p= (exp(-tauxR*periodT)-calculerProbabiliteBaisseD())/(calculerProbabiliteHausseU()-calculerProbabiliteBaisseD());
-double   prixCall= exp(-tauxR*periodT)*(p*calculerPayOffHausseU(isCall)+(1-p)*calculerPayOffBaisseD(isCall));
-  return prixCall;
+vector<vector<double > > prixArbre = calculerPayOffs(true);
+for (int j = n - 1; j >= 0; j--) {
+  for (int i = 0; i <= j; i++) {
+    prixArbre[i][j] = exp(-tauxR*dt)*(p*prixArbre[i][j + 1] + (1 - p)*prixArbre[i + 1][j + 1]);
+    }
+  }
+  return prixArbre[0][0];
 }
 
 double Binomial::getPrixPut(){
-  bool isCall=false;
+  double dt= periodT/n;
   double  p= (exp(-tauxR*periodT)-calculerProbabiliteBaisseD())/(calculerProbabiliteHausseU()-calculerProbabiliteBaisseD());
-  double prixPut = exp(-tauxR*periodT)*(p*calculerPayOffHausseU(isCall)+(1-p)*calculerPayOffBaisseD(isCall));
-     return prixPut;
+  vector<vector<double > > prixArbre = calculerPayOffs(false);
+  for (int j = n - 1; j >= 0; j--) {
+    for (int i = 0; i <= j; i++) {
+      prixArbre[i][j] = exp(-tauxR*dt)*(p*prixArbre[i][j + 1] + (1 - p)*prixArbre[i + 1][j + 1]);
+    }
+  }
+  return prixArbre[0][0];
 }
 /*int main(){
-Binomial obj = Binomial(0.25,100.00,60.00,0.02,1,1);
-double priceP = obj.getPrixPut();
-cout<<"prix du put: "<<priceP<<"\n";*/
+Binomial2 obj = Binomial2(0.25,100.00,60.00,0.02,10,10);
+cout<<"prix du put: "<<obj.getPrixPut();
+cout<<"prix du call: "<<obj.getPrixCall();
+}*/
+
 /*double payOffCb= calculerPayOffBaisseD( prixS0, ecartType,periodT, prixStrikeK,true);
 double payOffCh= calculerPayOffHausseU( prixS0, ecartType,periodT, prixStrikeK,true);
 cout<<"payOff baisse:"<<payOffCb<<" ";
