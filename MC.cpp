@@ -6,6 +6,7 @@
 #include <list>
 #include <math.h>
 #include<algorithm>
+#include <cstdlib>
 using namespace std;
 // ce sont des valeurs fixées arbitrairement mais qui peuvent etre generés via Black and Sholes
 //taux sans risque R
@@ -40,6 +41,7 @@ double calculerMoyennePayOffs(list<list<double> > lx, bool isCall);
 void afficherNTraj(list<list<double> > N_traj);
 double getPrixCall();
 double getPrixPut();
+bool isInterval_de_confiance_5prct(double val,list<list<double> > N_traj,bool isCall);
 };
 MC::MC(double r,double S_0,double ecartType,double strikeK, int N , long periodT){
   this->r=r;
@@ -135,6 +137,7 @@ double MC::getPrixCall(){
   double prixCall = exp(-(r*periodT))*MPay_Off;
   return prixCall;
 }
+
 // formule avec l'espérence => moyenne
 double MC::getPrixPut(){
   bool isCall=false;
@@ -144,9 +147,21 @@ double MC::getPrixPut(){
   double MPay_Off = calculerMoyennePayOffs(N_traj,isCall);
   cout<<"verification Moyenne des payoffs: "<<MPay_Off<<"\n";
   double prixPut = exp(-(r*periodT))*MPay_Off;
+  cout<<isInterval_de_confiance_5prct(prixPut, N_traj, isCall);
   return prixPut;
 }
+bool MC::isInterval_de_confiance_5prct(double val,list<list<double> > N_traj,bool isCall ){
+    double born1;
+    born1=val+calculerMoyennePayOffs( N_traj,isCall )/sqrt(N);
+    double born2;
+    born2=getPrixCall()-calculerMoyennePayOffs(N_traj,isCall )/sqrt(N);
+double c=calculerMoyennePayOffs(N_traj,isCall )/sqrt(N);
 
+  if(abs(born1-born2)<=(1.96*c)){
+    return true;
+  }
+  return false;
+}
 
 /*bool Is ValuAtRisqueOK(){
 
