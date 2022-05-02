@@ -33,5 +33,6 @@ double calculerMoyennePayOffs(list<list<double> > lx, bool isCall);
 void afficherNTraj(list<list<double> > N_traj);
 double getPrixCall();
 double getPrixPut();
+double calculEcartType(list<list<double> > N_traj,bool isCall);
 bool isInterval_de_confiance_5prct(double val,list<list<double> > N_traj,bool isCall);
 };

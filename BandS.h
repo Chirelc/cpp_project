@@ -1,17 +1,17 @@
-#include "Parite.cpp"
+
 class BandS{
 private :
   double prixStrikeK;
   double tauxR;
   double ecartType;
-  long periodT;
+  double  periodT;
   //double S_0;
   double prixSt;
-  list<double> list_St;
+  //list<double> list_St;
   double n;
-  double mu;
+  //double mu;
 public:
-BandS(double mu,double n ,double prixSt,double ecartType, long periodT, double tauxR, double prixStrikeK);
+BandS(double n ,double prixSt,double ecartType, double periodT, double tauxR, double prixStrikeK);
 //list<double> simulation_trajectoire_mvt_brownien();
 double calculerD1( double dividende);
 double calculerD2(double dividende);
@@ -22,7 +22,7 @@ double getPrixCall( double dividende);
 double getPrixPut( double dividende);
 double getPrixCall();
 double getPrixPut();
-double calculerLoiNormaleNonCummule(double a,double var);
+double calculerLoiNormaleNonCummule(double var);
 double getSensibiliteDelta(bool isCall);
 double getSensibiliteGamma();
 double getSensibiliteVega();

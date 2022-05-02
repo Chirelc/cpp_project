@@ -9,7 +9,7 @@ using namespace std;
 int main(){
 string methode;
 cout<<"Choisisez la méhode de pricing:"<<"\n";
-cout<<"Monte Carlos"<<"\n";
+cout<<"Monte Carlo"<<"\n";
 cout<<"Binomial"<<"\n";
 cout<<"Black and Sholes"<<"\n";
 getline(cin, methode);
@@ -20,19 +20,19 @@ if(methode=="Binomial"){
   double prixStrikeK;
   double tauxR;
   long periodT;
-  long n ;
-  cout<<"rentrer les valeurs suivantes:"<<"\n";
-  cout<<"le cours de l'action en t=0"<<"\n";
+  double n ;
+  cout<<"Rentrer les valeurs suivantes:"<<"\n";
+  cout<<"Le prix du sous-jacent en t=0"<<"\n";
   cin>>prixS0;
-  cout<<"Entrer la durée de l’échéance de l'option: "<<"\n";
+  cout<<"Entrer la maturité de l'option: "<<"\n";
   cin>>periodT;
-  cout<<"entrer le nombre de périodes: "<<"\n";
+  cout<<"Entrer le nombre de périodes: "<<"\n";
   cin>>n;
-  cout<<"le taux sans risque:"<<"\n";
+  cout<<"Le taux sans risque: "<<"\n";
   cin>>tauxR;
-  cout<<"prix fixé du sous jacent à l'échéance :"<<"\n";
+  cout<<"Le prix d'exercie de l'option :"<<"\n";
   cin>>prixStrikeK;
-  cout<<"entrer la volatilité du sous-jacent"<<"\n";
+  cout<<"Entrer la volatilité du sous-jacent"<<"\n";
   cin>>ecartType;
   Binomial bin = Binomial(ecartType,prixS0,prixStrikeK,tauxR,periodT,n);
   double Call=bin.getPrixCall();
@@ -40,7 +40,7 @@ if(methode=="Binomial"){
   cout<<"voici le prix du Call:"<<Call<<"\n";
   cout<<"voici le prix du Put: "<<Put<<"\n";
 }
-if(methode == "Monte Carlos"){
+if(methode == "Monte Carlo"){
   double r;
   double S_0;
   double ecartType;
@@ -48,17 +48,17 @@ if(methode == "Monte Carlos"){
   int N;
   long periodT;
   cout<<"rentrer les valeurs suivantes: "<<"\n";
-  cout<<"rentrer la durée de l’échéance de l'option: "<<"\n";
+  cout<<"rentrer la maturité de l'option: "<<"\n";
   cin>>periodT;
   cout<<"entrer le prix du sous-jacent à t=0: "<<"\n";
   cin>>S_0;
   cout<<"entrer le  nombre de generation de trajectoires voulu: "<<"\n";
   cin>>N;
-  cout<<"entrer le taux sans risque de l'option à appliquer: "<<"\n";
+  cout<<"entrer le taux sans risque: "<<"\n";
   cin>>r;
-  cout<<"entrer la prime de l'option: "<<"\n";
+  cout<<"entrer le prix d'exercice: "<<"\n";
   cin>>strikeK;
-  cout<<"entrer la volatilitée de l'option: "<<"\n";
+  cout<<"entrer la volatilité de l'option: "<<"\n";
   cin>>ecartType;
   MC mc = MC(r,S_0,ecartType, strikeK, N,periodT);
   double Call=mc.getPrixCall();
@@ -70,7 +70,7 @@ if(methode=="Black and Sholes"){
   double prixStrikeK;
   double tauxR;
   double ecartType;
-  long periodT;
+  double periodT;
   double Call;
   double Put;
   double deltaC;
@@ -82,10 +82,10 @@ if(methode=="Black and Sholes"){
   double rhoP;
   double rhoC;
   //double S_0;
-  double mu;
+  //double mu;
   double n;
   bool parite ;
-  list<double> list_st;
+  //list<double> list_st;
   double prixSt;
   double spotTime;
   /*
@@ -100,32 +100,32 @@ if(methode=="Black and Sholes"){
   double mu;
 public:
 BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double prixStrikeK);*/
-  cout<<"rentrer les valeurs suivantes:"<<"\n";
-  cout<<"entrer le prix de l'exercice: "<<"\n";
+  cout<<"Rentrer les valeurs suivantes:"<<"\n";
+  cout<<"Entrer le prix de l'exercice: "<<"\n";
   cin>>prixStrikeK;
-  cout<<"entrer le taux sans risque de l'option :"<<"\n";
+  cout<<"Entrer le taux sans risque de l'option :"<<"\n";
   cin>>tauxR;
-  cout<<"entrer la date d'échéance de l'option (en année)"<<"\n";
+  cout<<"Entrer la date d'échéance de l'option (en année)"<<"\n";
   cin>>periodT;
-  cout<<"entrer la volatilité du sous jacent: "<<"\n";
+  cout<<"Entrer la volatilité du sous jacent: "<<"\n";
   cin>>ecartType;
-  cout<<"entrer le nombre de périodes: "<<"\n";
+  cout<<"Entrer le nombre de périodes: "<<"\n";
   cin>>n;
-  cout<<"entrer le drift du mouvement brownien mu: "<<"\n";
-  cin>>mu;
+  //cout<<"entrer le drift du mouvement brownien mu: "<<"\n";
+//  cin>>mu;
   /*cout<<"entrer la valeur du sous jacent au temp 0:"<<"\n";
   cin>>S_0;*/
   /*cout<<"entrer l'age de l'option: "<<"\n";
   cin>>spotTime;*/
-  cout<<"entrer le spot price: "<<"\n";
+  cout<<"Entrer le spot price: "<<"\n";
   cin>>prixSt;
-  BandS bands = BandS(mu,n,prixSt,ecartType, periodT,tauxR,prixStrikeK);
+  BandS bands = BandS(n,prixSt,ecartType, periodT,tauxR,prixStrikeK);
   string isDiv;
     cout<<"y'a t-il un dividende ? (oui ou non) "<<"\n";
     cin>>isDiv;
     double dividende;
     if(isDiv=="oui"){
-    cout<<"entrer le dividende"<<"\n";
+    cout<<"Entrer le dividende"<<"\n";
     cin>>dividende;
   }
   /*list_st=bands.simulation_trajectoire_mvt_brownien();
@@ -146,6 +146,7 @@ BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double p
     thetaP=bands.getSensibiliteTheta(false,dividende);
     rhoP=bands.getSensibiliteRho(false,dividende);
     rhoC=bands.getSensibiliteRho(true,dividende);
+    parite = bands.getParite(dividende);
     }else{
     Call= bands.getPrixCall();
     Put=bands.getPrixPut();
@@ -157,31 +158,30 @@ BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double p
     thetaP=bands.getSensibiliteTheta(false);
     rhoP=bands.getSensibiliteRho(false);
     rhoC=bands.getSensibiliteRho(true);
-    cout<<"voici le prix du Call: "<<Call<<" et voici le prix du Put: "<<Put<<"\n";
     parite = bands.getParite();
   }
-
-  cout<<"voici les greques: "<<"\n";
-  cout<<"l'indicateur Delta: qui détermine la sensibilitée du prix à une variation du sous-jacent: "<<"\n";
-  cout<<"Delta pour un put: "<<deltaP<<"\n";
-  cout<<"Delta pour un Call: "<<deltaC<<"\n";
-  cout<<"l'indicateur Gamma: qui détermine l'accéleration du prix à une variation de sous-jacent: "<<"\n";
-  cout<<"Gamma: "<<gamma<<"\n";
-  cout<<"l'indicateur Vega qui détermine la variation de la volatilité du sous-jacent: "<<"\n";
-  cout<<"Vega: "<<vega<<"\n";
-  cout<<"l'indicateur Theta qui détermine la sensibilitée du prix du sous-jacent lors de la variation de la maturitée de l'option: "<<"\n";
-  cout<<"Theta pour un Put: "<<thetaP<<"\n";
-  cout<<"Theta pour un Call: "<<thetaC<<"\n";
-  cout<<"l'indicateur Rho qui détermine la sensibilitée du prix du sous-jacent à une variation du taux sans risque "<<"\n";
-  cout<<"Rho pour un Put: "<<rhoP<<"\n";
-  cout<<"Rho pour un Call: "<<rhoC<<"\n";
-  cout<<"Vérification de la validitée des valeurs calculés par la librairie: "<<"\n";
-  cout<<"la vérification à lieu uniquement pour le call et put à maturité: "<<"\n";
-  if(parite){
+  string affG;
+  cout<<"Voici le prix du Call: "<<Call<<" et voici le prix du Put: "<<Put<<"\n";
+  cout<<"Souhaitez-vous l'affichage des Grecques?(oui ou non)"<<"\n";
+  cin>>affG;
+  if(affG=="oui"){
+  cout<<"Voici les grecques: "<<"\n";
+  cout<<"L'indicateur Delta: "<<"\n";
+  cout<<"Delta pour un put: "<<deltaP<<" Delta pour un Call: "<<deltaC<<"\n";
+  cout<<"L'indicateur Gamma: "<<gamma<<"\n";
+  cout<<"l'indicateur Vega: "<<vega<<"\n";
+  cout<<"l'indicateur Theta:"<<"\n";
+  cout<<"Theta pour un Put: "<<thetaP<<" Theta pour un Call: "<<thetaC<<"\n";
+  cout<<"l'indicateur Rho: "<<"\n";
+  cout<<"Rho pour un Put: "<<rhoP<<" Rho pour un Call: "<<rhoC<<"\n";
+}
+  cout<<"Vérification de la validité des valeurs calculés par la librairie: "<<"\n";
+  if(parite==true){
     cout<<"les bornes sur les prix sont bien respectés "<<"\n";
   }else{
     cout<<"les bornes sur les prix  ne sont pas respectés "<<"\n";
-    cout<<"il y'a une erreur de calcule pour une valeur  "<<"\n";
+    cout<<"Il y'a une erreur de calcule pour une valeur  "<<"\n";
   }
 }
+
 }

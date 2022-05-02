@@ -9,32 +9,42 @@ Binomial::Binomial(double ecartType,double prixS0,double prixStrikeK,double taux
 }
 
 double Binomial::calculerProbabiliteHausseU(){
-return exp(ecartType*sqrt(periodT/n));
+double dt=periodT/n;
+double c2=sqrt(dt);
+return exp(ecartType*c2);
 }
 double Binomial::calculerProbabiliteBaisseD(){
-  return exp(-(ecartType*sqrt(periodT/n)));
+  double dt=periodT/n;
+  double c2=sqrt(dt);
+  return  exp(-ecartType*c2);
 }
 // j'ai ajouté prixStrike
 //ajout isCall or pUT
 vector<vector<double> > Binomial::calculerPrixSt(){
-vector<vector<double> > prixSt(n + 1, vector<double>(n + 1, 0));
+vector<vector<double> >  prixSt(n + 1, vector<double>(n + 1, 0));
 double d=calculerProbabiliteBaisseD();
 double u=calculerProbabiliteHausseU();
-for (int j = 0; j <= n; j++) {
+/*for (int j = 0; j <= n; j++) {
      for (int i = 0; i <= j; i++) {
-         prixSt [i][j] = prixS0*pow(u, j - i)*pow(d, i);
+         prixSt[i][j] = prixS0*pow(u, j - i)*pow(d, i);
      }
- }
+ }*/
+ for (int j = 0; j <= n; j++) {
+       for (int i = 0; i <= j; i++) {
+           prixSt[i][j] = prixS0*pow(u, j - i)*pow(d, i);
+       }
+   }
+
 return prixSt;
 }
 vector<vector<double> > Binomial::calculerPayOffs(bool isCall){
-vector<vector<double> >  valeurSt=calculerPrixSt();
+vector<vector<double> >  valeurSt= calculerPrixSt();
 vector<vector<double> >  prixArbre(n + 1, vector<double>(n + 1, 0));
  for (int i = 0; i <= n; i++) {
    if(isCall){
-   prixArbre [i][n]=max(valeurSt[i][n] - prixStrikeK, 0.0);
- }else{
-   prixArbre [i][n]=max(prixStrikeK-valeurSt[i][n], 0.0);
+   prixArbre[i][n]=max(valeurSt[i][n] - prixStrikeK, 0.0);
+ }if(!isCall){
+   prixArbre[i][n]=max(prixStrikeK-valeurSt[i][n], 0.0);
  }
 
  }
@@ -66,11 +76,12 @@ double Binomial::calculerPayOffBaisseD(bool isCall){
 double Binomial::getPrixCall(){
 double dt= periodT/n;
 double Call;
-double  p= (exp(-tauxR*periodT)-calculerProbabiliteBaisseD())/(calculerProbabiliteHausseU()-calculerProbabiliteBaisseD());
+double  p= (exp(tauxR*dt)-calculerProbabiliteBaisseD())/(calculerProbabiliteHausseU()-calculerProbabiliteBaisseD());
 vector<vector<double > > prixArbre = calculerPayOffs(true);
 for (int j = n - 1; j >= 0; j--) {
   for (int i = 0; i <= j; i++) {
     prixArbre[i][j] = exp(-tauxR*dt)*(p*prixArbre[i][j + 1] + (1 - p)*prixArbre[i + 1][j + 1]);
+  //  cout<<prixArbre[i][j];
     }
   }
   return prixArbre[0][0];
@@ -78,21 +89,21 @@ for (int j = n - 1; j >= 0; j--) {
 
 double Binomial::getPrixPut(){
   double dt= periodT/n;
-  double  p= (exp(-tauxR*periodT)-calculerProbabiliteBaisseD())/(calculerProbabiliteHausseU()-calculerProbabiliteBaisseD());
+  double  p= (exp(tauxR*dt)-calculerProbabiliteBaisseD())/(calculerProbabiliteHausseU()-calculerProbabiliteBaisseD());
   vector<vector<double > > prixArbre = calculerPayOffs(false);
   for (int j = n - 1; j >= 0; j--) {
     for (int i = 0; i <= j; i++) {
       prixArbre[i][j] = exp(-tauxR*dt)*(p*prixArbre[i][j + 1] + (1 - p)*prixArbre[i + 1][j + 1]);
     }
   }
+
   return prixArbre[0][0];
 }
 /*int main(){
-Binomial2 obj = Binomial2(0.25,100.00,60.00,0.02,10,10);
+Binomial obj = Binomial(0.20,100.00,100.00,0.02,1,1000);
 cout<<"prix du put: "<<obj.getPrixPut();
 cout<<"prix du call: "<<obj.getPrixCall();
 }*/
-
 /*double payOffCb= calculerPayOffBaisseD( prixS0, ecartType,periodT, prixStrikeK,true);
 double payOffCh= calculerPayOffHausseU( prixS0, ecartType,periodT, prixStrikeK,true);
 cout<<"payOff baisse:"<<payOffCb<<" ";

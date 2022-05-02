@@ -98,8 +98,8 @@ double MC::getPrixCall(){
   // cout<<"affichage des trajectoires: "<<" \n";
   //afficherNTraj(N_traj);
   double MPay_Off = calculerMoyennePayOffs(N_traj,isCall);
-  cout<<"verification Moyenne des payoffs: "<<MPay_Off<<"\n";
   double prixCall = exp(-(r*periodT))*MPay_Off;
+  isInterval_de_confiance_5prct(prixCall, N_traj, isCall);
   return prixCall;
 }
 
@@ -110,22 +110,40 @@ double MC::getPrixPut(){
   double nbreLoiNormal = genererNbreLoiNormale();
   list<list<double> > N_traj (simuler_N_trajectoire(nbreLoiNormal));
   double MPay_Off = calculerMoyennePayOffs(N_traj,isCall);
-  cout<<"verification Moyenne des payoffs: "<<MPay_Off<<"\n";
   double prixPut = exp(-(r*periodT))*MPay_Off;
-  cout<<isInterval_de_confiance_5prct(prixPut, N_traj, isCall);
+  isInterval_de_confiance_5prct(prixPut, N_traj, isCall);
   return prixPut;
+}
+double MC::calculEcartType(list<list<double> > N_traj,bool isCall){
+list<double> listPO = calculerPayOffs(N_traj, isCall);
+double moyenPO=calculerMoyennePayOffs( N_traj,isCall );
+double sumX=0;
+list <double> ::iterator it=listPO.begin();
+for(int i=0;i<listPO.size();i++){
+    advance(it,i);
+    sumX+=pow(*it-moyenPO,2);
+}
+return sqrt(sumX/listPO.size());
 }
 bool MC::isInterval_de_confiance_5prct(double val,list<list<double> > N_traj,bool isCall ){
     double born1;
-    born1=val+calculerMoyennePayOffs( N_traj,isCall )/sqrt(N);
+    born1=val+1.96*calculEcartType(N_traj,isCall)/sqrt(N);
     double born2;
-    born2=getPrixCall()-calculerMoyennePayOffs(N_traj,isCall )/sqrt(N);
-double c=calculerMoyennePayOffs(N_traj,isCall )/sqrt(N);
-
+    born2=val-1.96*calculEcartType(N_traj,isCall)/sqrt(N);;
+    double c=calculEcartType(N_traj,isCall )/sqrt(N);
+string type;
+if(isCall){
+type=" du Call: ";
+}else{
+type=" du Put: ";
+}
+cout<<"borne inférieur"<<type<<born2<<" borne supérieur"<<type<<born1<<"\n";
   if(abs(born1-born2)<=(1.96*c)){
     return true;
+  cout<<"on a bien un interval de confiance à 5 % "<<"\n";
   }
   return false;
+//  cout<<"notre interval de confiance est trop grand"<<"\n";
 }
 
 /*bool Is ValuAtRisqueOK(){

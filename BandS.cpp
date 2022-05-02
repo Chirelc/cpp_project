@@ -1,8 +1,16 @@
 
 #include "BandS.h"
-  BandS::BandS(double mu,double n,double prixSt, double ecartType, long periodT, double tauxR, double prixStrikeK){
+#include <iostream>
+#include <random>
+#include <tgmath.h>
+#include <list>
+#include <math.h>
+#include<algorithm>
+#include <cstdlib>
+using namespace std;
+  BandS::BandS(double n,double prixSt, double ecartType, double  periodT, double tauxR, double prixStrikeK){
     this->n=n;
-    this->mu=mu;
+    //this->mu=mu;
     this->ecartType=ecartType;
     this->periodT=periodT;
     this->tauxR=tauxR;
@@ -10,13 +18,8 @@
     this->prixSt=prixSt;
     //this->S_0=S_0;
   }
-  double BandS::calculerLoiNormaleNonCummule(double a, double var){
-    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-    default_random_engine generator (seed);
-    normal_distribution<double> distribution(a,var);
-    double G=distribution(generator);
-    //cout<<"ln: "<<G;
-    return G ;
+  double BandS::calculerLoiNormaleNonCummule( double x){
+      return (1.0/(pow(2*3.14,0.5)))*exp(-0.5*x*x);
   }
 
 
@@ -114,7 +117,7 @@ double BandS::getPrixPut(double dividende){
 
 
 double BandS::getSensibiliteDelta(bool isCall){
-  double d1=calculerD1(prixSt);
+  double d1=calculerD1();
   if(isCall){
     return calculerLoiNormale(d1);
   }else{
@@ -125,47 +128,47 @@ double BandS::getSensibiliteDelta(bool isCall){
 double BandS::getSensibiliteDelta(bool isCall,double dividende){
     double d1=calculerD1(dividende);
   if(isCall){
-    return calculerLoiNormale(d1);
+    return exp(-dividende*periodT)*(calculerLoiNormale(d1));
   }else{
-    return calculerLoiNormale(d1) - 1;
+    return exp(-dividende*periodT)*(calculerLoiNormale(d1)-1);
   }
 }
 
 double BandS::getSensibiliteGamma(){
   double d1=calculerD1();
-  return calculerLoiNormaleNonCummule(0.0,d1)/(prixSt*ecartType*sqrt(periodT));
+  return calculerLoiNormaleNonCummule(d1)/(prixSt*ecartType*sqrt(periodT));
 
 }
 double BandS::getSensibiliteGamma(double dividende){
   double d1=calculerD1(dividende);
-  return calculerLoiNormaleNonCummule(0.0,d1)/(prixSt*ecartType*sqrt(periodT));
+  return calculerLoiNormaleNonCummule(d1)/(prixSt*ecartType*sqrt(periodT));
 
 }
 double BandS::getSensibiliteVega(){
   double d1=calculerD1();
-  return prixSt*calculerLoiNormaleNonCummule(0.0,d1)*sqrt(periodT);
+  return prixSt*calculerLoiNormaleNonCummule(d1)*sqrt(periodT);
 }
 
 double BandS::getSensibiliteVega(double dividende){
   double d1=calculerD1(dividende);
-  return prixSt*calculerLoiNormaleNonCummule(0.0,d1)*sqrt(periodT);
+  return prixSt*exp(-dividende*periodT)*calculerLoiNormaleNonCummule(d1)*sqrt(periodT);
 }
 double BandS::getSensibiliteTheta(bool isCall){
   double d1=calculerD1();
   double d2=calculerD2();
   if(isCall){
-      return (prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))+tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
+    return -((prixSt*calculerLoiNormaleNonCummule(d1)*ecartType)/(2*sqrt(periodT)))-tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
   }else{
-  return -(prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))-tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
+  return -((prixSt*calculerLoiNormaleNonCummule(d1)*ecartType)/(2*sqrt(periodT)))+tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(-d2);
   }
 }
 double BandS::getSensibiliteTheta(bool isCall,double dividende ){
   double d1=calculerD1(dividende);
   double d2=calculerD2(dividende);
   if(isCall){
-      return (prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))+tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
+      return -(prixSt*exp(-dividende*periodT)*calculerLoiNormaleNonCummule(d1)*ecartType)/(2*sqrt(periodT))-tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2)+dividende*prixSt*exp(-dividende*periodT)*calculerLoiNormale(d1);
   }else{
-  return -(prixSt*calculerLoiNormaleNonCummule(0.0,d1)*ecartType)/(2*sqrt(periodT))-tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(d2);
+  return -(prixSt*exp(-dividende*periodT)*calculerLoiNormaleNonCummule(d1)*ecartType)/(2*sqrt(periodT))+tauxR*prixStrikeK*exp(-tauxR*periodT)*calculerLoiNormale(-d2)-dividende*prixSt*exp(-dividende*periodT)*calculerLoiNormale(-d1);
   }
 }
 double BandS::getSensibiliteRho(bool isCall){
@@ -191,16 +194,26 @@ double BandS::getSensibiliteRho(bool isCall,double dividende){
 
 }
 bool BandS::getParite(){
-Parite p= Parite(prixSt,prixStrikeK,getPrixCall(), getPrixPut(),tauxR,periodT);
-bool res;
-res=p.isValueOk();
+  bool res;
+  if((getPrixCall()-getPrixPut())==(prixSt-prixStrikeK*exp(-tauxR*periodT))){
+    res=true;
+  }else{
+    res=false;
+  }
+  cout<<"1: "<<getPrixCall()-getPrixPut();
+  cout<<"2: "<<(prixSt-prixStrikeK*exp(-tauxR*periodT));
 return res;
 }
 
 bool BandS::getParite(double dividende){
-Parite p= Parite(prixSt,prixStrikeK,getPrixCall(dividende), getPrixPut(dividende),tauxR,periodT);
-bool res;
-res=p.isValueOk();
+  bool res;
+  if((getPrixCall(dividende)-getPrixPut(dividende))==(prixSt-prixStrikeK*exp(-tauxR*periodT))){
+    res=true;
+  }else{
+    res=false;
+  }
+  cout<<"1: "<<getPrixCall(dividende)-getPrixPut(dividende);
+  cout<<"2: "<<(prixSt-prixStrikeK*exp(-tauxR*periodT));
 return res;
 }
 /*list<double> BandS::getSt(){
@@ -208,18 +221,87 @@ return res;
 }*/
 
 /*int main(){
-double prixSt=100.00;
-double prixStrikeK=60.00;
-double tauxR=0.02;
-double ecartType=0.25;
-long periodT=1;
-double  n=0.01;
-double mu=0.03;
-BandS obj = BandS(mu,n,ecartType,periodT,tauxR,prixStrikeK);
-list<double> list_st=obj.simulation_trajectoire_mvt_brownien();
-for(list<double> ::iterator it= list_st.begin();it!=list_st.end();it++){
-  double call=obj.getPrixCall(*it);
-  double put= obj.getPrixPut(*it);
-  cout<<"put :"<<put;
-  cout<<"call :"<<call;
-}}*/
+  double prixStrikeK=60;
+  double tauxR=0.02;
+  double ecartType=0.25;
+  double periodT=1;
+  double Call;
+  double Put;
+  double deltaC;
+  double deltaP;
+  double gamma;
+  double vega;
+  double thetaC;
+  double thetaP;
+  double rhoP;
+  double rhoC;
+
+  double n=1;
+  bool parite ;
+
+  double prixSt=100;
+  double spotTime;
+
+  BandS bands = BandS(1,100,0.25, 1,0.02,60.00);
+  string isDiv;
+    cout<<"y'a t-il un dividende ? (oui ou non) "<<"\n";
+    cin>>isDiv;
+    double dividende;
+    if(isDiv=="oui"){
+    dividende=0.02;
+  }*/
+  /*list_st=bands.simulation_trajectoire_mvt_brownien();
+  list<double> ::iterator it= list_st.begin();
+  double deltaT=periodT-(spotTime/n);
+  for(int i=0;i<deltaT;i++){
+    advance(it,i);
+    prixSt=*it;
+  }*/
+  /*  if(isDiv=="oui"){
+    Call= bands.getPrixCall(dividende);
+    Put=bands.getPrixPut(dividende);
+    deltaC=bands.getSensibiliteDelta(true,dividende);
+    deltaP=bands.getSensibiliteDelta(false,dividende);
+    gamma=bands.getSensibiliteGamma(dividende);
+    vega=bands.getSensibiliteVega(dividende);
+    thetaC=bands.getSensibiliteTheta(true,dividende);
+    thetaP=bands.getSensibiliteTheta(false,dividende);
+    rhoP=bands.getSensibiliteRho(false,dividende);
+    rhoC=bands.getSensibiliteRho(true,dividende);
+    parite = bands.getParite(dividende);
+    }else{
+    Call= bands.getPrixCall();
+    Put=bands.getPrixPut();
+    deltaC=bands.getSensibiliteDelta(true);
+    deltaP=bands.getSensibiliteDelta(false);
+    gamma=bands.getSensibiliteGamma();
+    vega=bands.getSensibiliteVega();
+    thetaC=bands.getSensibiliteTheta(true);
+    thetaP=bands.getSensibiliteTheta(false);
+    rhoP=bands.getSensibiliteRho(false);
+    rhoC=bands.getSensibiliteRho(true);
+    parite = bands.getParite();
+  }
+  string affG;
+  cout<<"Voici le prix du Call: "<<Call<<" et voici le prix du Put: "<<Put<<"\n";
+  cout<<"Souhaitez-vous l'affichage des Grecques?(oui ou non)"<<"\n";
+  cin>>affG;
+  if(affG=="oui"){
+  cout<<"Voici les grecques: "<<"\n";
+  cout<<"L'indicateur Delta: "<<"\n";
+  cout<<"Delta pour un put: "<<deltaP<<" Delta pour un Call: "<<deltaC<<"\n";
+  cout<<"L'indicateur Gamma: "<<gamma<<"\n";
+  cout<<"l'indicateur Vega: "<<vega<<"\n";
+  cout<<"l'indicateur Theta:"<<"\n";
+  cout<<"Theta pour un Put: "<<thetaP<<" Theta pour un Call: "<<thetaC<<"\n";
+  cout<<"l'indicateur Rho: "<<"\n";
+  cout<<"Rho pour un Put: "<<rhoP<<" Rho pour un Call: "<<rhoC<<"\n";
+  }
+  cout<<"Vérification de la validité des valeurs calculés par la librairie: "<<"\n";
+  if(parite==true){
+    cout<<"les bornes sur les prix sont bien respectés "<<"\n";
+  }else{
+    cout<<"les bornes sur les prix  ne sont pas respectés "<<"\n";
+    cout<<"Il y'a une erreur de calcule pour une valeur  "<<"\n";
+  }
+}*/

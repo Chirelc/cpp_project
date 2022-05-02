@@ -1,8 +1,8 @@
+#include <vector>
+#include <stdio.h>
+#include <math.h>
 #include <iostream>
-#include <random>
-//#include <chrono>
-#include <tgmath.h>
-#include <list>
+#include <string>
 #include<algorithm>
 using namespace std;
 /*const double ecartType=0.25;
@@ -17,7 +17,7 @@ double prixS0;
 double prixStrikeK;
 double tauxR;
 long periodT;
-long n;
+double  n;
 public:
 Binomial(double ecartType,double prixS0,double prixStrikeK,double tauxR,long periodT,long n);
 double calculerProbabiliteHausseU();
