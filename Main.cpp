@@ -81,25 +81,10 @@ if(methode=="Black and Sholes"){
   double thetaP;
   double rhoP;
   double rhoC;
-  //double S_0;
-  //double mu;
   double n;
   bool parite ;
-  //list<double> list_st;
   double prixSt;
   double spotTime;
-  /*
-  list<double> list_st;
-  double prixStrikeK;
-  double tauxR;
-  double ecartType;
-  long periodT;
-  double S_0;
-  list<double> list_St;
-  double n;
-  double mu;
-public:
-BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double prixStrikeK);*/
   cout<<"Rentrer les valeurs suivantes:"<<"\n";
   cout<<"Entrer le prix de l'exercice: "<<"\n";
   cin>>prixStrikeK;
@@ -111,12 +96,6 @@ BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double p
   cin>>ecartType;
   cout<<"Entrer le nombre de périodes: "<<"\n";
   cin>>n;
-  //cout<<"entrer le drift du mouvement brownien mu: "<<"\n";
-//  cin>>mu;
-  /*cout<<"entrer la valeur du sous jacent au temp 0:"<<"\n";
-  cin>>S_0;*/
-  /*cout<<"entrer l'age de l'option: "<<"\n";
-  cin>>spotTime;*/
   cout<<"Entrer le spot price: "<<"\n";
   cin>>prixSt;
   BandS bands = BandS(n,prixSt,ecartType, periodT,tauxR,prixStrikeK);
@@ -128,14 +107,7 @@ BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double p
     cout<<"Entrer le dividende"<<"\n";
     cin>>dividende;
   }
-  /*list_st=bands.simulation_trajectoire_mvt_brownien();
-  list<double> ::iterator it= list_st.begin();
-  double deltaT=periodT-(spotTime/n);
-  for(int i=0;i<deltaT;i++){
-    advance(it,i);
-    prixSt=*it;
-  }*/
-    if(isDiv=="oui"){
+  if(isDiv=="oui"){
     Call= bands.getPrixCall(dividende);
     Put=bands.getPrixPut(dividende);
     deltaC=bands.getSensibiliteDelta(true,dividende);
@@ -179,8 +151,8 @@ BandS(double mu,double n ,double ecartType, long periodT, double tauxR, double p
   if(parite==true){
     cout<<"les bornes sur les prix sont bien respectés "<<"\n";
   }else{
-    cout<<"les bornes sur les prix  ne sont pas respectés "<<"\n";
-    cout<<"Il y'a une erreur de calcule pour une valeur  "<<"\n";
+  cout<<"les bornes sur les prix  ne sont pas respectés "<<"\n";
+  cout<<"Il y'a une erreur de calcule pour une valeur  "<<"\n";
   }
 }
 

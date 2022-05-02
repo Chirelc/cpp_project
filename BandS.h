@@ -5,14 +5,10 @@ private :
   double tauxR;
   double ecartType;
   double  periodT;
-  //double S_0;
   double prixSt;
-  //list<double> list_St;
   double n;
-  //double mu;
 public:
 BandS(double n ,double prixSt,double ecartType, double periodT, double tauxR, double prixStrikeK);
-//list<double> simulation_trajectoire_mvt_brownien();
 double calculerD1( double dividende);
 double calculerD2(double dividende);
 double calculerD1();
@@ -35,5 +31,4 @@ double getSensibiliteRho(bool isCall,double dividende);
 double getSensibiliteTheta(bool isCall,double dividende);
 bool getParite();
 bool getParite(double dividende);
-//list<double> getSt();
 };

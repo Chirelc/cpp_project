@@ -18,18 +18,11 @@ double Binomial::calculerProbabiliteBaisseD(){
   double c2=sqrt(dt);
   return  exp(-ecartType*c2);
 }
-// j'ai ajouté prixStrike
-//ajout isCall or pUT
 vector<vector<double> > Binomial::calculerPrixSt(){
 vector<vector<double> >  prixSt(n + 1, vector<double>(n + 1, 0));
 double d=calculerProbabiliteBaisseD();
 double u=calculerProbabiliteHausseU();
-/*for (int j = 0; j <= n; j++) {
-     for (int i = 0; i <= j; i++) {
-         prixSt[i][j] = prixS0*pow(u, j - i)*pow(d, i);
-     }
- }*/
- for (int j = 0; j <= n; j++) {
+for (int j = 0; j <= n; j++) {
        for (int i = 0; i <= j; i++) {
            prixSt[i][j] = prixS0*pow(u, j - i)*pow(d, i);
        }
@@ -51,28 +44,6 @@ vector<vector<double> >  prixArbre(n + 1, vector<double>(n + 1, 0));
   return prixArbre;
 }
 
-/*double Binomial::calculerPayOffHausseU(bool isCall){
-double p=prixS0*calculerProbabiliteHausseU();
-double payOffHausseU;
-if(isCall){
- payOffHausseU= max(p-prixStrikeK,0.0);
-}else{
-    payOffHausseU =max(prixStrikeK-p,0.0);
-}
-return payOffHausseU;
-
-}
-double Binomial::calculerPayOffBaisseD(bool isCall){
-  double p=prixS0*calculerProbabiliteBaisseD();
-  double payOffBaisseD;
-  if(isCall){
-  payOffBaisseD=max(p-prixStrikeK,0.0);
-  }else{
-    payOffBaisseD=max(prixStrikeK-p,0.0);
-  }
-  return payOffBaisseD;
-}
-// a refaire avec plus de periodes -> fonction recurante ?*/
 double Binomial::getPrixCall(){
 double dt= periodT/n;
 double Call;
@@ -81,7 +52,6 @@ vector<vector<double > > prixArbre = calculerPayOffs(true);
 for (int j = n - 1; j >= 0; j--) {
   for (int i = 0; i <= j; i++) {
     prixArbre[i][j] = exp(-tauxR*dt)*(p*prixArbre[i][j + 1] + (1 - p)*prixArbre[i + 1][j + 1]);
-  //  cout<<prixArbre[i][j];
     }
   }
   return prixArbre[0][0];
@@ -99,15 +69,3 @@ double Binomial::getPrixPut(){
 
   return prixArbre[0][0];
 }
-/*int main(){
-Binomial obj = Binomial(0.20,100.00,100.00,0.02,1,1000);
-cout<<"prix du put: "<<obj.getPrixPut();
-cout<<"prix du call: "<<obj.getPrixCall();
-}*/
-/*double payOffCb= calculerPayOffBaisseD( prixS0, ecartType,periodT, prixStrikeK,true);
-double payOffCh= calculerPayOffHausseU( prixS0, ecartType,periodT, prixStrikeK,true);
-cout<<"payOff baisse:"<<payOffCb<<" ";
-cout<<"payOff hausse "<<payOffCh<<" ";*/
-/*double priceC = obj.getPrixCall();
-cout<<"prix du call: "<<priceC<<"\n";
-}*/
